@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Indices Historical Data Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            height: 70vh;
+            width: 100%;
+        }
+        .date-range-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        .slider-container {
+            margin: 15px 0;
+        }
+        .date-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .date-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        .date-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .date-display span {
+            padding: 5px 10px;
+            background-color: #e9e9e9;
+            border-radius: 4px;
+        }
+        .slider-title {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .button-container {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .preset-ranges {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .preset-button {
+            background-color: #3498db;
+        }
+        .preset-button:hover {
+            background-color: #2980b9;
+        }
+        .presidents-legend {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        .presidents-legend h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .president-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .president-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        .president-name {
+            font-weight: bold;
+        }
+        .president-term {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-buttons" style="display: flex; justify-content: center; margin-bottom: 20px;">
+            <a href="index.html" class="nav-button" style="padding: 10px 20px; background-color: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 0 10px; text-decoration: none;">View Absolute Prices</a>
+            <a href="presidential_comparison.html" class="nav-button" style="padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 0 10px; text-decoration: none;">View Presidential Comparison</a>
+        </div>
+
+        <h1>Market Indices - Historical Closing Prices</h1>
+
+        <div class="date-range-container">
+            <h3>Date Range Selection</h3>
+
+            <div class="date-display">
+                <span id="startDateDisplay">Start: Loading...</span>
+                <span id="endDateDisplay">End: Loading...</span>
+            </div>
+
+            <div class="preset-ranges">
+                <button class="preset-button" id="oneWeekButton">1 Week</button>
+                <button class="preset-button" id="oneMonthButton">1 Month</button>
+                <button class="preset-button" id="ytdButton">YTD</button>
+                <button class="preset-button" id="oneYearButton">1 Year</button>
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-title">Start Date:</div>
+                <input type="range" min="0" max="100" value="0" class="date-slider" id="startDateSlider">
+                <div class="date-labels">
+                    <span id="minDateLabel">Loading...</span>
+                    <span id="maxDateLabel">Loading...</span>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-title">End Date:</div>
+                <input type="range" min="0" max="100" value="100" class="date-slider" id="endDateSlider">
+                <div class="date-labels">
+                    <span id="minDateLabel2">Loading...</span>
+                    <span id="maxDateLabel2">Loading...</span>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button id="resetZoomButton">Reset Zoom</button>
+                <button id="applyRangeButton">Apply Range</button>
+            </div>
+        </div>
+
+        <div class="presidents-legend">
+            <h3>Presidential Terms</h3>
+            <div id="presidentsLegend">
+                <!-- Presidential terms legend will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="marketChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Global variables to store the full datasets
+        let fullDjiaData = { dates: [], prices: [] };
+        let fullSp500Data = { dates: [], prices: [] };
+        let chart = null;
+
+        // Presidential terms data (past 5 presidents)
+        const presidentialTerms = [
+            {
+                name: "George W. Bush",
+                startDate: "2001-01-20",
+                endDate: "2009-01-20",
+                color: "rgba(255, 204, 204, 0.5)"  // Light red (Republican)
+            },
+            {
+                name: "Barack Obama",
+                startDate: "2009-01-20",
+                endDate: "2017-01-20",
+                color: "rgba(204, 229, 255, 0.5)"  // Light blue (Democratic)
+            },
+            {
+                name: "Donald Trump",
+                startDate: "2017-01-20",
+                endDate: "2021-01-20",
+                color: "rgba(255, 204, 204, 0.5)"  // Light red (Republican)
+            },
+            {
+                name: "Joe Biden",
+                startDate: "2021-01-20",
+                endDate: '2025-01-20',  // End date
+                color: "rgba(204, 229, 255, 0.5)"  // Light blue (Democratic)
+            },
+            {
+                name: "Donald Trump (47)",
+                startDate: "2025-01-20",
+                endDate: new Date().toISOString().split('T')[0],  // Current date
+                color: "rgba(255, 204, 204, 0.5)"  // Light red (Republican)
+            }
+        ];
+
+        // Function to fetch and parse CSV data for DJIA
+        async function fetchDJIAData() {
+            try {
+                const response = await fetch('djia_closing_prices.csv');
+                const data = await response.text();
+
+                // Parse CSV data
+                const rows = data.trim().split('\n');
+                const headers = rows[0].split(',');
+
+                const dates = [];
+                const prices = [];
+
+                // Start from index 1 to skip the header row
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].split(',');
+                    dates.push(values[0]);
+                    prices.push(parseFloat(values[1]));
+                }
+
+                return { dates, prices };
+            } catch (error) {
+                console.error('Error fetching or parsing DJIA data:', error);
+                return { dates: [], prices: [] };
+            }
+        }
+
+        // Function to fetch and parse CSV data for S&P 500
+        async function fetchSP500Data() {
+            try {
+                const response = await fetch('sp500_closing_prices.csv');
+                const data = await response.text();
+
+                // Parse CSV data
+                const rows = data.trim().split('\n');
+                const headers = rows[0].split(',');
+
+                const dates = [];
+                const prices = [];
+
+                // Start from index 1 to skip the header row
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].split(',');
+                    dates.push(values[0]);
+                    prices.push(parseFloat(values[1]));
+                }
+
+                return { dates, prices };
+            } catch (error) {
+                console.error('Error fetching or parsing S&P 500 data:', error);
+                return { dates: [], prices: [] };
+            }
+        }
+
+        // Function to initialize the date range sliders
+        function initializeDateSliders(dates) {
+            if (dates.length === 0) return;
+
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+            const minDateLabel = document.getElementById('minDateLabel');
+            const maxDateLabel = document.getElementById('maxDateLabel');
+            const minDateLabel2 = document.getElementById('minDateLabel2');
+            const maxDateLabel2 = document.getElementById('maxDateLabel2');
+            const startDateDisplay = document.getElementById('startDateDisplay');
+            const endDateDisplay = document.getElementById('endDateDisplay');
+
+            // Set min and max values for sliders
+            startDateSlider.min = 0;
+            startDateSlider.max = dates.length - 1;
+            startDateSlider.value = 0;
+
+            endDateSlider.min = 0;
+            endDateSlider.max = dates.length - 1;
+            endDateSlider.value = dates.length - 1;
+
+            // Set labels
+            minDateLabel.textContent = dates[0];
+            maxDateLabel.textContent = dates[dates.length - 1];
+            minDateLabel2.textContent = dates[0];
+            maxDateLabel2.textContent = dates[dates.length - 1];
+
+            // Set initial display values
+            updateDateDisplay(dates);
+
+            // Add event listeners for sliders
+            startDateSlider.addEventListener('input', function() {
+                // Ensure start date is not after end date
+                if (parseInt(startDateSlider.value) > parseInt(endDateSlider.value)) {
+                    startDateSlider.value = endDateSlider.value;
+                }
+                updateDateDisplay(dates);
+            });
+
+            endDateSlider.addEventListener('input', function() {
+                // Ensure end date is not before start date
+                if (parseInt(endDateSlider.value) < parseInt(startDateSlider.value)) {
+                    endDateSlider.value = startDateSlider.value;
+                }
+                updateDateDisplay(dates);
+            });
+
+            // Add event listener for reset button
+            document.getElementById('resetZoomButton').addEventListener('click', function() {
+                startDateSlider.value = 0;
+                endDateSlider.value = dates.length - 1;
+                updateDateDisplay(dates);
+
+                // Reset the chart title to the original title
+                chart.options.plugins.title.text = 'Market Indices Closing Prices (Jan 2000 - Present)';
+
+                updateChart();
+            });
+
+            // Add event listener for apply button
+            document.getElementById('applyRangeButton').addEventListener('click', updateChart);
+
+            // Add event listeners for preset range buttons
+            document.getElementById('oneWeekButton').addEventListener('click', function() {
+                setPresetRange(dates, 7); // 7 days
+            });
+
+            document.getElementById('oneMonthButton').addEventListener('click', function() {
+                setPresetRange(dates, 30); // 30 days
+            });
+
+            document.getElementById('ytdButton').addEventListener('click', function() {
+                setYearToDateRange(dates);
+            });
+
+            document.getElementById('oneYearButton').addEventListener('click', function() {
+                setPresetRange(dates, 365); // 365 days
+            });
+        }
+
+        // Function to update the date display
+        function updateDateDisplay(dates) {
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+            const startDateDisplay = document.getElementById('startDateDisplay');
+            const endDateDisplay = document.getElementById('endDateDisplay');
+
+            const startIndex = parseInt(startDateSlider.value);
+            const endIndex = parseInt(endDateSlider.value);
+
+            startDateDisplay.textContent = `Start: ${dates[startIndex]}`;
+            endDateDisplay.textContent = `End: ${dates[endIndex]}`;
+        }
+
+        // Function to filter data based on selected date range
+        function filterDataByDateRange() {
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+
+            const startIndex = parseInt(startDateSlider.value);
+            const endIndex = parseInt(endDateSlider.value);
+
+            // Filter DJIA data
+            const filteredDjiaData = {
+                dates: fullDjiaData.dates.slice(startIndex, endIndex + 1),
+                prices: fullDjiaData.prices.slice(startIndex, endIndex + 1)
+            };
+
+            // Filter S&P 500 data
+            const filteredSp500Data = {
+                dates: fullSp500Data.dates.slice(startIndex, endIndex + 1),
+                prices: fullSp500Data.prices.slice(startIndex, endIndex + 1)
+            };
+
+            return { filteredDjiaData, filteredSp500Data };
+        }
+
+        // Function to set a preset date range (e.g., 1 week, 1 month, 1 year)
+        function setPresetRange(dates, days) {
+            if (dates.length === 0) return;
+
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+
+            // Set end date to the most recent date (last index)
+            const endIndex = dates.length - 1;
+            endDateSlider.value = endIndex;
+
+            // Find the index for the start date (days ago from the end date)
+            const endDate = new Date(dates[endIndex]);
+            const targetStartDate = new Date(endDate);
+            targetStartDate.setDate(endDate.getDate() - days);
+
+            // Find the closest date in our dataset
+            let startIndex = endIndex;
+            for (let i = endIndex; i >= 0; i--) {
+                const currentDate = new Date(dates[i]);
+                if (currentDate <= targetStartDate) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            // Update sliders
+            startDateSlider.value = startIndex;
+
+            // Update display and chart
+            updateDateDisplay(dates);
+            updateChart();
+        }
+
+        // Function to set the Year-to-Date range
+        function setYearToDateRange(dates) {
+            if (dates.length === 0) return;
+
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+
+            // Set end date to the most recent date (last index)
+            const endIndex = dates.length - 1;
+            endDateSlider.value = endIndex;
+
+            // Get the current year
+            const currentYear = new Date().getFullYear();
+            const startOfYear = new Date(currentYear, 0, 1); // January 1st of current year
+
+            // Find the closest date in our dataset
+            let startIndex = 0;
+            for (let i = 0; i < dates.length; i++) {
+                const currentDate = new Date(dates[i]);
+                if (currentDate >= startOfYear) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            // Update sliders
+            startDateSlider.value = startIndex;
+
+            // Update display and chart
+            updateDateDisplay(dates);
+            updateChart();
+        }
+
+        // Function to populate the presidential terms legend
+        function populatePresidentsLegend() {
+            const legendContainer = document.getElementById('presidentsLegend');
+            legendContainer.innerHTML = '';
+
+            presidentialTerms.forEach(president => {
+                const item = document.createElement('div');
+                item.className = 'president-item';
+
+                const colorBox = document.createElement('div');
+                colorBox.className = 'president-color';
+                colorBox.style.backgroundColor = president.color;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'president-name';
+                nameSpan.textContent = president.name;
+
+                const termSpan = document.createElement('span');
+                termSpan.className = 'president-term';
+                termSpan.textContent = `(${president.startDate} to ${president.endDate === new Date().toISOString().split('T')[0] ? 'Present' : president.endDate})`;
+
+                item.appendChild(colorBox);
+                item.appendChild(nameSpan);
+                item.appendChild(termSpan);
+
+                legendContainer.appendChild(item);
+            });
+        }
+
+        // Function to create presidential term annotations
+        function createPresidentialAnnotations() {
+            const annotations = {};
+
+            presidentialTerms.forEach((president, index) => {
+                annotations[`president-${index}`] = {
+                    type: 'box',
+                    xMin: president.startDate,
+                    xMax: president.endDate,
+                    backgroundColor: president.color,
+                    borderColor: 'transparent',
+                    drawTime: 'beforeDatasetsDraw'
+                };
+            });
+
+            return annotations;
+        }
+
+        // Function to update the chart with filtered data
+        function updateChart() {
+            const { filteredDjiaData, filteredSp500Data } = filterDataByDateRange();
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+            const startIndex = parseInt(startDateSlider.value);
+            const endIndex = parseInt(endDateSlider.value);
+
+            // Update chart data
+            chart.data.labels = filteredDjiaData.dates;
+            chart.data.datasets[0].data = filteredDjiaData.prices;
+            chart.data.datasets[1].data = filteredSp500Data.prices;
+
+            // Update the chart's options to include the presidential annotations
+            chart.options.plugins.annotation.annotations = createPresidentialAnnotations();
+
+            // Set the x-axis min and max to match the selected date range
+            if (filteredDjiaData.dates.length > 0) {
+                const startDate = filteredDjiaData.dates[0];
+                const endDate = filteredDjiaData.dates[filteredDjiaData.dates.length - 1];
+
+                chart.options.scales.x.min = startDate;
+                chart.options.scales.x.max = endDate;
+
+                // Update chart title to reflect the selected date range
+                chart.options.plugins.title.text = `Market Indices Closing Prices (${startDate} to ${endDate})`;
+
+                // Adjust the time unit based on the date range
+                const dateRange = endIndex - startIndex;
+                if (dateRange <= 14) { // 2 weeks or less
+                    chart.options.scales.x.time.unit = 'day';
+                    chart.options.scales.x.time.displayFormats.day = 'MMM D, YYYY';
+                } else if (dateRange <= 90) { // 3 months or less
+                    chart.options.scales.x.time.unit = 'week';
+                    chart.options.scales.x.time.displayFormats.week = 'MMM D, YYYY';
+                } else if (dateRange <= 365) { // 1 year or less
+                    chart.options.scales.x.time.unit = 'month';
+                    chart.options.scales.x.time.displayFormats.month = 'MMM YYYY';
+                } else {
+                    chart.options.scales.x.time.unit = 'month';
+                    chart.options.scales.x.time.displayFormats.month = 'MMM YYYY';
+                }
+            }
+
+            // Update chart
+            chart.update();
+        }
+
+        // Function to create the chart
+        async function createChart() {
+            // Fetch the full datasets
+            fullDjiaData = await fetchDJIAData();
+            fullSp500Data = await fetchSP500Data();
+
+            // Populate the presidential terms legend
+            populatePresidentsLegend();
+
+            // Initialize date sliders
+            initializeDateSliders(fullDjiaData.dates);
+
+            // Get the canvas element
+            const ctx = document.getElementById('marketChart').getContext('2d');
+
+            // Create the chart with the full datasets initially
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: fullDjiaData.dates,
+                    datasets: [
+                        {
+                            label: 'DJIA Closing Price',
+                            data: fullDjiaData.prices,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'S&P 500 Closing Price',
+                            data: fullSp500Data.prices,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            },
+                            ticks: {
+                                maxTicksLimit: 20,
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                                displayFormats: {
+                                    month: 'MMM YYYY'
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'DJIA Closing Price ($)'
+                            },
+                            beginAtZero: false
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'S&P 500 Closing Price ($)'
+                            },
+                            beginAtZero: false,
+                            grid: {
+                                drawOnChartArea: false // only want the grid lines for one axis to show up
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Market Indices Closing Prices (Jan 2000 - Present)',
+                            font: {
+                                size: 18
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            position: 'top'
+                        },
+                        annotation: {
+                            annotations: createPresidentialAnnotations()
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // Call the function to create the chart when the page loads
+        window.addEventListener('DOMContentLoaded', createChart);
+    </script>
+</body>
+</html>

@@ -1,5 +1,18 @@
 # Vanguard Funds Integration & Code Refactoring
 
+## Task Prompts
+
+### Initial Request
+> Please update this script to also download the following funds: VV, VTSAX, VFIAX.
+> 
+> Create a new chart page, similar to index.html, that renders these three funds.
+
+### Refactoring Request
+> Look at download_djia_data.py. There is a lot of reptition here. It is downloading 5 different times, and is largely repeating code each time. Refactor it to extract a method that will do the downloading, minimizing the repitition in the file.
+
+### Documentation Request
+> Please document our interaction in this thread, and store it in '03-vanguard-refactor.md'
+
 ## Overview
 
 In this session, we enhanced the DJIA visualization project in two significant ways:

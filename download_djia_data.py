@@ -1,8 +1,10 @@
 """
 Market Indices Historical Data Downloader
 
-This script downloads historical closing price data for the Dow Jones Industrial Average (DJIA)
-and S&P 500 from January 2000 to the present day and saves them to CSV files in the format 'date,closing_price'.
+This script downloads historical closing price data for the Dow Jones Industrial Average (DJIA),
+S&P 500, VV (Vanguard Large-Cap ETF), VTSAX (Vanguard Total Stock Market Index Fund),
+and VFIAX (Vanguard 500 Index Fund) from January 2000 to the present day and saves them to CSV files
+in the format 'date,closing_price'.
 
 Requirements:
 - yfinance
@@ -12,7 +14,8 @@ Usage:
     python download_djia_data.py
 
 Output:
-    Creates files 'djia_closing_prices.csv' and 'sp500_closing_prices.csv' in the current directory
+    Creates files 'djia_closing_prices.csv', 'sp500_closing_prices.csv', 'vv_closing_prices.csv',
+    'vtsax_closing_prices.csv', and 'vfiax_closing_prices.csv' in the current directory
 """
 
 import yfinance as yf
@@ -64,3 +67,57 @@ sp500_closing_data.to_csv(sp500_output_file, header=True, index=False)
 
 print(f"S&P 500 data successfully saved to {sp500_output_file}")
 print(f"Total S&P 500 records: {len(sp500_closing_data)}")
+
+# Download VV (Vanguard Large-Cap ETF) data
+print("\nDownloading VV data...")
+vv_data = yf.download('VV', start=start_date_str, end=end_date_str, auto_adjust=True)
+
+# Extract the closing prices
+vv_closing_data = vv_data['Close'].reset_index()
+vv_closing_data.columns = ['date', 'closing']
+
+# Format the date as string
+vv_closing_data['date'] = vv_closing_data['date'].dt.strftime('%Y-%m-%d')
+
+# Save to CSV with the required format
+vv_output_file = 'vv_closing_prices.csv'
+vv_closing_data.to_csv(vv_output_file, header=True, index=False)
+
+print(f"VV data successfully saved to {vv_output_file}")
+print(f"Total VV records: {len(vv_closing_data)}")
+
+# Download VTSAX (Vanguard Total Stock Market Index Fund) data
+print("\nDownloading VTSAX data...")
+vtsax_data = yf.download('VTSAX', start=start_date_str, end=end_date_str, auto_adjust=True)
+
+# Extract the closing prices
+vtsax_closing_data = vtsax_data['Close'].reset_index()
+vtsax_closing_data.columns = ['date', 'closing']
+
+# Format the date as string
+vtsax_closing_data['date'] = vtsax_closing_data['date'].dt.strftime('%Y-%m-%d')
+
+# Save to CSV with the required format
+vtsax_output_file = 'vtsax_closing_prices.csv'
+vtsax_closing_data.to_csv(vtsax_output_file, header=True, index=False)
+
+print(f"VTSAX data successfully saved to {vtsax_output_file}")
+print(f"Total VTSAX records: {len(vtsax_closing_data)}")
+
+# Download VFIAX (Vanguard 500 Index Fund) data
+print("\nDownloading VFIAX data...")
+vfiax_data = yf.download('VFIAX', start=start_date_str, end=end_date_str, auto_adjust=True)
+
+# Extract the closing prices
+vfiax_closing_data = vfiax_data['Close'].reset_index()
+vfiax_closing_data.columns = ['date', 'closing']
+
+# Format the date as string
+vfiax_closing_data['date'] = vfiax_closing_data['date'].dt.strftime('%Y-%m-%d')
+
+# Save to CSV with the required format
+vfiax_output_file = 'vfiax_closing_prices.csv'
+vfiax_closing_data.to_csv(vfiax_output_file, header=True, index=False)
+
+print(f"VFIAX data successfully saved to {vfiax_output_file}")
+print(f"Total VFIAX records: {len(vfiax_closing_data)}")

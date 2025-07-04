@@ -1,591 +1,740 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S&P 500 Presidential Term Comparison</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Chart.js and related libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
-    <style>
-        body {
-            background-color: #f8f9fa;
-            padding-top: 20px;
-            padding-bottom: 20px;
-        }
-        .chart-container {
-            position: relative;
-            height: 70vh;
-            width: 100%;
-        }
-        .date-display span {
-            background-color: #e9ecef;
-        }
-        .president-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .president-color {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
-        .president-term {
-            margin-left: 10px;
-            font-size: 14px;
-            color: #6c757d;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="d-flex justify-content-center mb-4">
-            <div class="btn-group" role="group" aria-label="View options">
-                <a href="index.html" class="btn btn-primary">View Absolute Prices</a>
-                <a href="presidential_comparison.html" class="btn btn-dark">View Presidential Comparison</a>
-            </div>
-        </div>
-
-        <h1 class="text-center mb-4">S&P 500 Relative Performance by Presidential Term</h1>
-
-        <div class="card mb-4">
-            <div class="card-body">
-                <p class="mb-0">This chart shows the relative performance of the S&P 500 during each presidential term, displayed as percentage change from the start of each term (0%). This allows for direct comparison of market performance across different administrations, regardless of the absolute price levels. Positive values indicate growth, while negative values indicate decline.</p>
-            </div>
-        </div>
-
-        <div class="card mb-4">
-            <div class="card-header">
-                <h3 class="mb-0">Day Range Selection</h3>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-end mb-3 date-display">
-                    <span id="endDayDisplay" class="badge bg-light text-dark p-2">End: Day 1460</span>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>S&P 500 Presidential Term Comparison</title>
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <!-- Chart.js and related libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+        <style>
+            body {
+                background-color: #f8f9fa;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+            .chart-container {
+                position: relative;
+                height: 70vh;
+                width: 100%;
+            }
+            .date-display span {
+                background-color: #e9ecef;
+            }
+            .president-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 5px;
+            }
+            .president-color {
+                width: 20px;
+                height: 20px;
+                margin-right: 10px;
+                border-radius: 3px;
+                flex-shrink: 0;
+            }
+            .president-term {
+                margin-left: 10px;
+                font-size: 14px;
+                color: #6c757d;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="d-flex justify-content-center mb-4">
+                <div class="btn-group" role="group" aria-label="View options">
+                    <a href="index.html" class="btn btn-primary"
+                        >View Market Indices</a
+                    >
+                    <a href="funds.html" class="btn btn-primary"
+                        >View Vanguard Funds</a
+                    >
+                    <a href="presidential_comparison.html" class="btn btn-dark"
+                        >View Presidential Comparison</a
+                    >
                 </div>
+            </div>
 
-                <div class="mb-3">
-                    <div class="btn-group flex-wrap" role="group" aria-label="Preset day ranges">
-                        <button class="btn btn-outline-primary" id="firstHundredDaysButton">First 100 Days</button>
-                        <button class="btn btn-outline-primary" id="firstYearButton">First Year</button>
-                        <button class="btn btn-outline-primary" id="twoYearsButton">2 Years</button>
-                        <button class="btn btn-outline-primary" id="fullTermButton">Full Term (4 Years)</button>
-                        <button class="btn btn-outline-primary" id="fullTwoTermsButton">Full Term (8 Years)</button>
+            <h1 class="text-center mb-4">
+                S&P 500 Relative Performance by Presidential Term
+            </h1>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p class="mb-0">
+                        This chart shows the relative performance of the S&P 500
+                        during each presidential term, displayed as percentage
+                        change from the start of each term (0%). This allows for
+                        direct comparison of market performance across different
+                        administrations, regardless of the absolute price
+                        levels. Positive values indicate growth, while negative
+                        values indicate decline.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Day Range Selection</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-end mb-3 date-display">
+                        <span
+                            id="endDayDisplay"
+                            class="badge bg-light text-dark p-2"
+                            >End: Day 1460</span
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <div
+                            class="btn-group flex-wrap"
+                            role="group"
+                            aria-label="Preset day ranges"
+                        >
+                            <button
+                                class="btn btn-outline-primary"
+                                id="firstHundredDaysButton"
+                            >
+                                First 100 Days
+                            </button>
+                            <button
+                                class="btn btn-outline-primary"
+                                id="firstYearButton"
+                            >
+                                First Year
+                            </button>
+                            <button
+                                class="btn btn-outline-primary"
+                                id="twoYearsButton"
+                            >
+                                2 Years
+                            </button>
+                            <button
+                                class="btn btn-outline-primary"
+                                id="fullTermButton"
+                            >
+                                Full Term (4 Years)
+                            </button>
+                            <button
+                                class="btn btn-outline-primary"
+                                id="fullTwoTermsButton"
+                            >
+                                Full Term (8 Years)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="endDaySlider" class="form-label fw-bold"
+                            >End Day:</label
+                        >
+                        <input
+                            type="range"
+                            min="0"
+                            max="2920"
+                            value="2920"
+                            class="form-range"
+                            id="endDaySlider"
+                        />
+                        <div
+                            class="d-flex justify-content-between small text-muted"
+                        >
+                            <span id="minDayLabel2">Day 0</span>
+                            <span id="maxDayLabel2">Day 2920</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button
+                            id="resetZoomButton"
+                            class="btn btn-secondary me-2"
+                        >
+                            Reset Zoom
+                        </button>
+                        <button id="applyRangeButton" class="btn btn-success">
+                            Apply Range
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div class="mb-3">
-                    <label for="endDaySlider" class="form-label fw-bold">End Day:</label>
-                    <input type="range" min="0" max="2920" value="2920" class="form-range" id="endDaySlider">
-                    <div class="d-flex justify-content-between small text-muted">
-                        <span id="minDayLabel2">Day 0</span>
-                        <span id="maxDayLabel2">Day 2920</span>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Presidential Terms</h3>
+                </div>
+                <div class="card-body">
+                    <div id="presidentsLegend">
+                        <!-- Presidential terms legend will be populated by JavaScript -->
                     </div>
                 </div>
+            </div>
 
-                <div class="d-flex justify-content-end">
-                    <button id="resetZoomButton" class="btn btn-secondary me-2">Reset Zoom</button>
-                    <button id="applyRangeButton" class="btn btn-success">Apply Range</button>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <h3 class="mb-0">Presidential Terms</h3>
-            </div>
-            <div class="card-body">
-                <div id="presidentsLegend">
-                    <!-- Presidential terms legend will be populated by JavaScript -->
-                </div>
-            </div>
-        </div>
+        <!-- Bootstrap JS Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="comparisonChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
+        <script>
+            // Global variables to store the full dataset and chart
+            let fullTermData = [];
+            let chart = null;
+            let maxDays = 2920; // Default max days (8 years)
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            // Presidential terms data (past 5 presidents)
+            const presidentialTerms = [
+                {
+                    name: "George W. Bush",
+                    startDate: "2001-01-20",
+                    endDate: "2009-01-20",
+                    color: "rgba(255, 204, 204, 0.5)", // Light red (Republican)
+                    borderColor: "rgb(255, 99, 132)", // Darker red for line
+                    party: "Republican",
+                },
+                {
+                    name: "Barack Obama",
+                    startDate: "2009-01-20",
+                    endDate: "2017-01-20",
+                    color: "rgba(204, 229, 255, 0.5)", // Light blue (Democratic)
+                    borderColor: "rgb(54, 162, 235)", // Darker blue for line
+                    party: "Democratic",
+                },
+                {
+                    name: "Donald Trump",
+                    startDate: "2017-01-20",
+                    endDate: "2021-01-20",
+                    color: "rgba(255, 204, 204, 0.5)", // Light red (Republican)
+                    borderColor: "rgb(255, 159, 64)", // Orange for line (to distinguish from Bush)
+                    party: "Republican",
+                },
+                {
+                    name: "Joe Biden",
+                    startDate: "2021-01-20",
+                    endDate: "2025-01-20", // End date
+                    color: "rgba(204, 229, 255, 0.5)", // Light blue (Democratic)
+                    borderColor: "rgb(75, 192, 192)", // Teal for line (to distinguish from Obama)
+                    party: "Democratic",
+                },
+                {
+                    name: "Donald Trump (47)",
+                    startDate: "2025-01-20",
+                    endDate: new Date().toISOString().split("T")[0], // Current date
+                    color: "rgba(255, 204, 204, 0.5)", // Light red (Republican)
+                    borderColor: "rgb(153, 102, 255)", // Purple for line (to distinguish from other Trump term)
+                    party: "Republican",
+                },
+            ];
 
-    <script>
-        // Global variables to store the full dataset and chart
-        let fullTermData = [];
-        let chart = null;
-        let maxDays = 2920; // Default max days (8 years)
+            // Function to fetch and parse CSV data for S&P 500
+            async function fetchSP500Data() {
+                try {
+                    const response = await fetch("sp500_closing_prices.csv");
+                    const data = await response.text();
 
-        // Presidential terms data (past 5 presidents)
-        const presidentialTerms = [
-            {
-                name: "George W. Bush",
-                startDate: "2001-01-20",
-                endDate: "2009-01-20",
-                color: "rgba(255, 204, 204, 0.5)",  // Light red (Republican)
-                borderColor: "rgb(255, 99, 132)",   // Darker red for line
-                party: "Republican"
-            },
-            {
-                name: "Barack Obama",
-                startDate: "2009-01-20",
-                endDate: "2017-01-20",
-                color: "rgba(204, 229, 255, 0.5)",  // Light blue (Democratic)
-                borderColor: "rgb(54, 162, 235)",   // Darker blue for line
-                party: "Democratic"
-            },
-            {
-                name: "Donald Trump",
-                startDate: "2017-01-20",
-                endDate: "2021-01-20",
-                color: "rgba(255, 204, 204, 0.5)",  // Light red (Republican)
-                borderColor: "rgb(255, 159, 64)",   // Orange for line (to distinguish from Bush)
-                party: "Republican"
-            },
-            {
-                name: "Joe Biden",
-                startDate: "2021-01-20",
-                endDate: "2025-01-20",  // End date
-                color: "rgba(204, 229, 255, 0.5)",  // Light blue (Democratic)
-                borderColor: "rgb(75, 192, 192)",   // Teal for line (to distinguish from Obama)
-                party: "Democratic"
-            },
-            {
-                name: "Donald Trump (47)",
-                startDate: "2025-01-20",
-                endDate: new Date().toISOString().split('T')[0],  // Current date
-                color: "rgba(255, 204, 204, 0.5)",  // Light red (Republican)
-                borderColor: "rgb(153, 102, 255)",  // Purple for line (to distinguish from other Trump term)
-                party: "Republican"
+                    // Parse CSV data
+                    const rows = data.trim().split("\n");
+                    const headers = rows[0].split(",");
+
+                    const dates = [];
+                    const prices = [];
+
+                    // Start from index 1 to skip the header row
+                    for (let i = 1; i < rows.length; i++) {
+                        const values = rows[i].split(",");
+                        dates.push(values[0]);
+                        prices.push(parseFloat(values[1]));
+                    }
+
+                    return { dates, prices };
+                } catch (error) {
+                    console.error(
+                        "Error fetching or parsing S&P 500 data:",
+                        error,
+                    );
+                    return { dates: [], prices: [] };
+                }
             }
-        ];
 
-        // Function to fetch and parse CSV data for S&P 500
-        async function fetchSP500Data() {
-            try {
-                const response = await fetch('sp500_closing_prices.csv');
-                const data = await response.text();
+            // Function to populate the presidential terms legend
+            function populatePresidentsLegend() {
+                const legendContainer =
+                    document.getElementById("presidentsLegend");
+                legendContainer.innerHTML = "";
 
-                // Parse CSV data
-                const rows = data.trim().split('\n');
-                const headers = rows[0].split(',');
+                presidentialTerms.forEach((president) => {
+                    const item = document.createElement("div");
+                    item.className = "president-item";
 
-                const dates = [];
-                const prices = [];
+                    const colorBox = document.createElement("div");
+                    colorBox.className = "president-color";
+                    colorBox.style.backgroundColor = president.borderColor;
 
-                // Start from index 1 to skip the header row
-                for (let i = 1; i < rows.length; i++) {
-                    const values = rows[i].split(',');
-                    dates.push(values[0]);
-                    prices.push(parseFloat(values[1]));
-                }
+                    const nameSpan = document.createElement("span");
+                    nameSpan.className = "president-name";
+                    nameSpan.textContent = president.name;
 
-                return { dates, prices };
-            } catch (error) {
-                console.error('Error fetching or parsing S&P 500 data:', error);
-                return { dates: [], prices: [] };
+                    const termSpan = document.createElement("span");
+                    termSpan.className = "president-term";
+                    termSpan.textContent = `(${president.startDate} to ${president.endDate === new Date().toISOString().split("T")[0] ? "Present" : president.endDate})`;
+
+                    item.appendChild(colorBox);
+                    item.appendChild(nameSpan);
+                    item.appendChild(termSpan);
+
+                    legendContainer.appendChild(item);
+                });
             }
-        }
 
-        // Function to populate the presidential terms legend
-        function populatePresidentsLegend() {
-            const legendContainer = document.getElementById('presidentsLegend');
-            legendContainer.innerHTML = '';
+            // Function to process S&P 500 data for each presidential term
+            function processPresidentialTermData(dates, prices) {
+                const termData = [];
 
-            presidentialTerms.forEach(president => {
-                const item = document.createElement('div');
-                item.className = 'president-item';
+                presidentialTerms.forEach((president) => {
+                    // Find the index of the start date of the term
+                    let startIndex = -1;
+                    let endIndex = -1;
 
-                const colorBox = document.createElement('div');
-                colorBox.className = 'president-color';
-                colorBox.style.backgroundColor = president.borderColor;
+                    for (let i = 0; i < dates.length; i++) {
+                        // Find the first trading day on or after the inauguration
+                        if (
+                            dates[i] >= president.startDate &&
+                            startIndex === -1
+                        ) {
+                            startIndex = i;
+                        }
 
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'president-name';
-                nameSpan.textContent = president.name;
-
-                const termSpan = document.createElement('span');
-                termSpan.className = 'president-term';
-                termSpan.textContent = `(${president.startDate} to ${president.endDate === new Date().toISOString().split('T')[0] ? 'Present' : president.endDate})`;
-
-                item.appendChild(colorBox);
-                item.appendChild(nameSpan);
-                item.appendChild(termSpan);
-
-                legendContainer.appendChild(item);
-            });
-        }
-
-        // Function to process S&P 500 data for each presidential term
-        function processPresidentialTermData(dates, prices) {
-            const termData = [];
-
-            presidentialTerms.forEach(president => {
-                // Find the index of the start date of the term
-                let startIndex = -1;
-                let endIndex = -1;
-
-                for (let i = 0; i < dates.length; i++) {
-                    // Find the first trading day on or after the inauguration
-                    if (dates[i] >= president.startDate && startIndex === -1) {
-                        startIndex = i;
+                        // Find the last trading day before the end of the term
+                        if (dates[i] <= president.endDate) {
+                            endIndex = i;
+                        } else if (dates[i] > president.endDate) {
+                            break;
+                        }
                     }
 
-                    // Find the last trading day before the end of the term
-                    if (dates[i] <= president.endDate) {
-                        endIndex = i;
-                    } else if (dates[i] > president.endDate) {
-                        break;
-                    }
-                }
+                    // If we found valid start and end indices
+                    if (
+                        startIndex !== -1 &&
+                        endIndex !== -1 &&
+                        startIndex <= endIndex
+                    ) {
+                        const startValue = prices[startIndex];
+                        const termDates = [];
+                        const normalizedPrices = [];
+                        const daysFromStart = [];
 
-                // If we found valid start and end indices
-                if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
-                    const startValue = prices[startIndex];
-                    const termDates = [];
-                    const normalizedPrices = [];
-                    const daysFromStart = [];
+                        // Calculate normalized prices (as percentage change from start value)
+                        for (let i = startIndex; i <= endIndex; i++) {
+                            const normalizedValue =
+                                ((prices[i] - startValue) / startValue) * 100;
+                            normalizedPrices.push(normalizedValue);
+                            termDates.push(dates[i]);
 
-                    // Calculate normalized prices (as percentage change from start value)
-                    for (let i = startIndex; i <= endIndex; i++) {
-                        const normalizedValue = ((prices[i] - startValue) / startValue) * 100;
-                        normalizedPrices.push(normalizedValue);
-                        termDates.push(dates[i]);
+                            // Calculate days from start of term
+                            const currentDate = new Date(dates[i]);
+                            const startDate = new Date(dates[startIndex]);
+                            const dayDiff = Math.floor(
+                                (currentDate - startDate) /
+                                    (1000 * 60 * 60 * 24),
+                            );
+                            daysFromStart.push(dayDiff);
+                        }
 
-                        // Calculate days from start of term
-                        const currentDate = new Date(dates[i]);
-                        const startDate = new Date(dates[startIndex]);
-                        const dayDiff = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
-                        daysFromStart.push(dayDiff);
-                    }
-
-                    termData.push({
-                        president: president.name,
-                        party: president.party,
-                        color: president.color,
-                        borderColor: president.borderColor,
-                        startDate: president.startDate,
-                        endDate: president.endDate,
-                        dates: termDates,
-                        normalizedPrices: normalizedPrices,
-                        daysFromStart: daysFromStart
-                    });
-                }
-            });
-
-            return termData;
-        }
-
-        // Function to initialize the day range slider
-        function initializeDaySliders() {
-            const endDaySlider = document.getElementById('endDaySlider');
-            const minDayLabel2 = document.getElementById('minDayLabel2');
-            const maxDayLabel2 = document.getElementById('maxDayLabel2');
-            const endDayDisplay = document.getElementById('endDayDisplay');
-
-            // Set min and max values for slider
-            endDaySlider.min = 0;
-            endDaySlider.max = maxDays;
-            endDaySlider.value = maxDays;
-
-            // Set labels
-            minDayLabel2.textContent = 'Day 0';
-            maxDayLabel2.textContent = `Day ${maxDays}`;
-
-            // Set initial display values
-            updateDayDisplay();
-
-            // Add event listener for slider
-            endDaySlider.addEventListener('input', function() {
-                updateDayDisplay();
-                updateChart();
-            });
-
-            // Add event listener for reset button
-            document.getElementById('resetZoomButton').addEventListener('click', function() {
-                endDaySlider.value = maxDays;
-                updateDayDisplay();
-
-                // Reset the chart title to the original title
-                chart.options.plugins.title.text = 'S&P 500 Performance by Presidential Term (% Change from Start)';
-
-                updateChart();
-            });
-
-            // Add event listener for apply button
-            document.getElementById('applyRangeButton').addEventListener('click', updateChart);
-
-            // Add event listeners for preset range buttons
-            document.getElementById('firstHundredDaysButton').addEventListener('click', function() {
-                setPresetRange(0, 100);
-            });
-
-            document.getElementById('firstYearButton').addEventListener('click', function() {
-                setPresetRange(0, 365);
-            });
-
-            document.getElementById('twoYearsButton').addEventListener('click', function() {
-                setPresetRange(0, 730);
-            });
-
-            document.getElementById('fullTermButton').addEventListener('click', function() {
-                setPresetRange(0, 1460);
-            });
-
-            document.getElementById('fullTwoTermsButton').addEventListener('click', function() {
-                setPresetRange(0, 2920);
-            });
-        }
-
-        // Function to update the day display
-        function updateDayDisplay() {
-            const endDaySlider = document.getElementById('endDaySlider');
-            const endDayDisplay = document.getElementById('endDayDisplay');
-
-            const endDay = parseInt(endDaySlider.value);
-
-            endDayDisplay.textContent = `End: Day ${endDay}`;
-        }
-
-        // Function to set a preset day range
-        function setPresetRange(startDay, endDay) {
-            const endDaySlider = document.getElementById('endDaySlider');
-
-            // Set the slider value
-            endDaySlider.value = endDay;
-
-            // Update the display
-            updateDayDisplay();
-
-            // Force the chart to update with the exact range
-            chart.options.scales.x.min = startDay;
-            chart.options.scales.x.max = endDay;
-
-            // Update the chart
-            updateChart();
-        }
-
-        // Function to filter datasets based on selected day range
-        function filterDatasetsByDayRange(datasets) {
-            const endDaySlider = document.getElementById('endDaySlider');
-
-            const startDay = 0; // Always start from day 0
-            const endDay = parseInt(endDaySlider.value);
-
-            // Filter each dataset to only include points within the selected day range
-            return datasets.map(dataset => {
-                // Get the original data from fullTermData
-                const president = dataset.label;
-                const termDataItem = fullTermData.find(term => term.president === president);
-
-                if (!termDataItem) return { ...dataset, data: [] };
-
-                // Create new data points that are within the range
-                const newData = [];
-                for (let i = 0; i < termDataItem.daysFromStart.length; i++) {
-                    const day = termDataItem.daysFromStart[i];
-                    if (day >= startDay && day <= endDay) {
-                        newData.push({
-                            x: day,
-                            y: termDataItem.normalizedPrices[i]
+                        termData.push({
+                            president: president.name,
+                            party: president.party,
+                            color: president.color,
+                            borderColor: president.borderColor,
+                            startDate: president.startDate,
+                            endDate: president.endDate,
+                            dates: termDates,
+                            normalizedPrices: normalizedPrices,
+                            daysFromStart: daysFromStart,
                         });
                     }
-                }
+                });
 
-                return {
-                    ...dataset,
-                    data: newData
-                };
-            }).filter(dataset => dataset.data.length > 0); // Remove datasets with no data in range
-        }
-
-        // Function to update the chart with filtered data
-        function updateChart() {
-            const endDaySlider = document.getElementById('endDaySlider');
-            const startDay = 0; // Always start from day 0
-            const endDay = parseInt(endDaySlider.value);
-
-            // Filter the datasets based on the selected day range
-            const filteredDatasets = filterDatasetsByDayRange(chart.data.datasets);
-
-            // Update chart datasets
-            chart.data.datasets = filteredDatasets;
-
-            // Set the x-axis min and max to match the selected day range
-            chart.options.scales.x.min = startDay;
-            chart.options.scales.x.max = endDay;
-
-            // Update chart title to reflect the selected day range
-            chart.options.plugins.title.text = `S&P 500 Performance by Presidential Term (Days 0 to ${endDay})`;
-
-            // Adjust the tick step size based on the day range
-            const dayRange = endDay;
-            if (dayRange <= 50) { // 50 days or less
-                chart.options.scales.x.ticks.stepSize = 5;
-            } else if (dayRange <= 100) { // 100 days or less
-                chart.options.scales.x.ticks.stepSize = 10;
-            } else if (dayRange <= 200) { // 200 days or less
-                chart.options.scales.x.ticks.stepSize = 20;
-            } else if (dayRange <= 365) { // 365 days or less (1 year)
-                chart.options.scales.x.ticks.stepSize = 30;
-            } else if (dayRange <= 730) { // 730 days or less (2 years)
-                chart.options.scales.x.ticks.stepSize = 90;
-            } else if (dayRange <= 1460) { // 1460 days or less (4 years)
-                chart.options.scales.x.ticks.stepSize = 180;
-            } else {
-                chart.options.scales.x.ticks.stepSize = 365;
+                return termData;
             }
 
-            // Update chart
-            chart.update();
-        }
+            // Function to initialize the day range slider
+            function initializeDaySliders() {
+                const endDaySlider = document.getElementById("endDaySlider");
+                const minDayLabel2 = document.getElementById("minDayLabel2");
+                const maxDayLabel2 = document.getElementById("maxDayLabel2");
+                const endDayDisplay = document.getElementById("endDayDisplay");
 
-        // Function to create the comparison chart
-        async function createComparisonChart() {
-            // Fetch the S&P 500 data
-            const sp500Data = await fetchSP500Data();
+                // Set min and max values for slider
+                endDaySlider.min = 0;
+                endDaySlider.max = maxDays;
+                endDaySlider.value = maxDays;
 
-            // Process data for each presidential term
-            const termData = processPresidentialTermData(sp500Data.dates, sp500Data.prices);
+                // Set labels
+                minDayLabel2.textContent = "Day 0";
+                maxDayLabel2.textContent = `Day ${maxDays}`;
 
-            // Store the full term data for later use
-            fullTermData = termData;
+                // Set initial display values
+                updateDayDisplay();
 
-            // Find the maximum number of days across all terms
-            maxDays = Math.max(...termData.flatMap(term => term.daysFromStart));
+                // Add event listener for slider
+                endDaySlider.addEventListener("input", function () {
+                    updateDayDisplay();
+                    updateChart();
+                });
 
-            // Update slider max values
-            document.getElementById('endDaySlider').max = maxDays;
-            document.getElementById('endDaySlider').value = maxDays;
-            document.getElementById('maxDayLabel2').textContent = `Day ${maxDays}`;
-            document.getElementById('endDayDisplay').textContent = `End: Day ${maxDays}`;
+                // Add event listener for reset button
+                document
+                    .getElementById("resetZoomButton")
+                    .addEventListener("click", function () {
+                        endDaySlider.value = maxDays;
+                        updateDayDisplay();
 
-            // Populate the presidential terms legend
-            populatePresidentsLegend();
+                        // Reset the chart title to the original title
+                        chart.options.plugins.title.text =
+                            "S&P 500 Performance by Presidential Term (% Change from Start)";
 
-            // Initialize day sliders
-            initializeDaySliders();
+                        updateChart();
+                    });
 
-            // Prepare datasets for the chart
-            const datasets = termData.map(term => {
-                return {
-                    label: term.president,
-                    data: term.normalizedPrices.map((price, index) => ({
-                        x: term.daysFromStart[index],
-                        y: price
-                    })),
-                    borderColor: term.borderColor,
-                    backgroundColor: 'transparent',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0.1
-                };
-            });
+                // Add event listener for apply button
+                document
+                    .getElementById("applyRangeButton")
+                    .addEventListener("click", updateChart);
 
-            // Get the canvas element
-            const ctx = document.getElementById('comparisonChart').getContext('2d');
+                // Add event listeners for preset range buttons
+                document
+                    .getElementById("firstHundredDaysButton")
+                    .addEventListener("click", function () {
+                        setPresetRange(0, 100);
+                    });
 
-            // Create the chart
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            title: {
-                                display: true,
-                                text: 'Days from Start of Term'
-                            },
-                            ticks: {
-                                stepSize: 100,
-                                callback: function(value) {
-                                    return value === 0 ? 'Start' : 'Day ' + value;
-                                }
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'S&P 500 (% Change from Start)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value > 0 ? '+' + value + '%' : value + '%';
-                                }
+                document
+                    .getElementById("firstYearButton")
+                    .addEventListener("click", function () {
+                        setPresetRange(0, 365);
+                    });
+
+                document
+                    .getElementById("twoYearsButton")
+                    .addEventListener("click", function () {
+                        setPresetRange(0, 730);
+                    });
+
+                document
+                    .getElementById("fullTermButton")
+                    .addEventListener("click", function () {
+                        setPresetRange(0, 1460);
+                    });
+
+                document
+                    .getElementById("fullTwoTermsButton")
+                    .addEventListener("click", function () {
+                        setPresetRange(0, 2920);
+                    });
+            }
+
+            // Function to update the day display
+            function updateDayDisplay() {
+                const endDaySlider = document.getElementById("endDaySlider");
+                const endDayDisplay = document.getElementById("endDayDisplay");
+
+                const endDay = parseInt(endDaySlider.value);
+
+                endDayDisplay.textContent = `End: Day ${endDay}`;
+            }
+
+            // Function to set a preset day range
+            function setPresetRange(startDay, endDay) {
+                const endDaySlider = document.getElementById("endDaySlider");
+
+                // Set the slider value
+                endDaySlider.value = endDay;
+
+                // Update the display
+                updateDayDisplay();
+
+                // Force the chart to update with the exact range
+                chart.options.scales.x.min = startDay;
+                chart.options.scales.x.max = endDay;
+
+                // Update the chart
+                updateChart();
+            }
+
+            // Function to filter datasets based on selected day range
+            function filterDatasetsByDayRange(datasets) {
+                const endDaySlider = document.getElementById("endDaySlider");
+
+                const startDay = 0; // Always start from day 0
+                const endDay = parseInt(endDaySlider.value);
+
+                // Filter each dataset to only include points within the selected day range
+                return datasets
+                    .map((dataset) => {
+                        // Get the original data from fullTermData
+                        const president = dataset.label;
+                        const termDataItem = fullTermData.find(
+                            (term) => term.president === president,
+                        );
+
+                        if (!termDataItem) return { ...dataset, data: [] };
+
+                        // Create new data points that are within the range
+                        const newData = [];
+                        for (
+                            let i = 0;
+                            i < termDataItem.daysFromStart.length;
+                            i++
+                        ) {
+                            const day = termDataItem.daysFromStart[i];
+                            if (day >= startDay && day <= endDay) {
+                                newData.push({
+                                    x: day,
+                                    y: termDataItem.normalizedPrices[i],
+                                });
                             }
                         }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'S&P 500 Performance by Presidential Term (% Change from Start)',
-                            font: {
-                                size: 18
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.dataset.label || '';
-                                    const value = context.parsed.y.toFixed(2);
-                                    const formattedValue = value > 0 ? '+' + value : value;
-                                    return `${label}: ${formattedValue}%`;
-                                },
-                                title: function(tooltipItems) {
-                                    const datasetIndex = tooltipItems[0].datasetIndex;
-                                    const dataIndex = tooltipItems[0].dataIndex;
 
-                                    // Find the corresponding term data
-                                    const president = tooltipItems[0].dataset.label;
-                                    const termDataItem = fullTermData.find(term => term.president === president);
+                        return {
+                            ...dataset,
+                            data: newData,
+                        };
+                    })
+                    .filter((dataset) => dataset.data.length > 0); // Remove datasets with no data in range
+            }
 
-                                    if (termDataItem) {
-                                        // Find the closest day in the term data
-                                        const day = tooltipItems[0].parsed.x;
-                                        const closestDayIndex = termDataItem.daysFromStart.findIndex(d => d >= day);
+            // Function to update the chart with filtered data
+            function updateChart() {
+                const endDaySlider = document.getElementById("endDaySlider");
+                const startDay = 0; // Always start from day 0
+                const endDay = parseInt(endDaySlider.value);
 
-                                        if (closestDayIndex !== -1) {
-                                            const exactDay = termDataItem.daysFromStart[closestDayIndex];
-                                            const date = termDataItem.dates[closestDayIndex];
-                                            return `Day ${exactDay} (${date})`;
-                                        }
-                                    }
+                // Filter the datasets based on the selected day range
+                const filteredDatasets = filterDatasetsByDayRange(
+                    chart.data.datasets,
+                );
 
-                                    return `Day ${tooltipItems[0].parsed.x}`;
-                                }
-                            }
-                        },
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
+                // Update chart datasets
+                chart.data.datasets = filteredDatasets;
+
+                // Set the x-axis min and max to match the selected day range
+                chart.options.scales.x.min = startDay;
+                chart.options.scales.x.max = endDay;
+
+                // Update chart title to reflect the selected day range
+                chart.options.plugins.title.text = `S&P 500 Performance by Presidential Term (Days 0 to ${endDay})`;
+
+                // Adjust the tick step size based on the day range
+                const dayRange = endDay;
+                if (dayRange <= 50) {
+                    // 50 days or less
+                    chart.options.scales.x.ticks.stepSize = 5;
+                } else if (dayRange <= 100) {
+                    // 100 days or less
+                    chart.options.scales.x.ticks.stepSize = 10;
+                } else if (dayRange <= 200) {
+                    // 200 days or less
+                    chart.options.scales.x.ticks.stepSize = 20;
+                } else if (dayRange <= 365) {
+                    // 365 days or less (1 year)
+                    chart.options.scales.x.ticks.stepSize = 30;
+                } else if (dayRange <= 730) {
+                    // 730 days or less (2 years)
+                    chart.options.scales.x.ticks.stepSize = 90;
+                } else if (dayRange <= 1460) {
+                    // 1460 days or less (4 years)
+                    chart.options.scales.x.ticks.stepSize = 180;
+                } else {
+                    chart.options.scales.x.ticks.stepSize = 365;
                 }
-            });
-        }
 
-        // Call the function to create the chart when the page loads
-        window.addEventListener('DOMContentLoaded', createComparisonChart);
-    </script>
-</body>
+                // Update chart
+                chart.update();
+            }
+
+            // Function to create the comparison chart
+            async function createComparisonChart() {
+                // Fetch the S&P 500 data
+                const sp500Data = await fetchSP500Data();
+
+                // Process data for each presidential term
+                const termData = processPresidentialTermData(
+                    sp500Data.dates,
+                    sp500Data.prices,
+                );
+
+                // Store the full term data for later use
+                fullTermData = termData;
+
+                // Find the maximum number of days across all terms
+                maxDays = Math.max(
+                    ...termData.flatMap((term) => term.daysFromStart),
+                );
+
+                // Update slider max values
+                document.getElementById("endDaySlider").max = maxDays;
+                document.getElementById("endDaySlider").value = maxDays;
+                document.getElementById("maxDayLabel2").textContent =
+                    `Day ${maxDays}`;
+                document.getElementById("endDayDisplay").textContent =
+                    `End: Day ${maxDays}`;
+
+                // Populate the presidential terms legend
+                populatePresidentsLegend();
+
+                // Initialize day sliders
+                initializeDaySliders();
+
+                // Prepare datasets for the chart
+                const datasets = termData.map((term) => {
+                    return {
+                        label: term.president,
+                        data: term.normalizedPrices.map((price, index) => ({
+                            x: term.daysFromStart[index],
+                            y: price,
+                        })),
+                        borderColor: term.borderColor,
+                        backgroundColor: "transparent",
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0.1,
+                    };
+                });
+
+                // Get the canvas element
+                const ctx = document
+                    .getElementById("comparisonChart")
+                    .getContext("2d");
+
+                // Create the chart
+                chart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        datasets: datasets,
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: "linear",
+                                title: {
+                                    display: true,
+                                    text: "Days from Start of Term",
+                                },
+                                ticks: {
+                                    stepSize: 100,
+                                    callback: function (value) {
+                                        return value === 0
+                                            ? "Start"
+                                            : "Day " + value;
+                                    },
+                                },
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "S&P 500 (% Change from Start)",
+                                },
+                                ticks: {
+                                    callback: function (value) {
+                                        return value > 0
+                                            ? "+" + value + "%"
+                                            : value + "%";
+                                    },
+                                },
+                            },
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "S&P 500 Performance by Presidential Term (% Change from Start)",
+                                font: {
+                                    size: 18,
+                                },
+                            },
+                            tooltip: {
+                                mode: "index",
+                                intersect: false,
+                                callbacks: {
+                                    label: function (context) {
+                                        const label =
+                                            context.dataset.label || "";
+                                        const value =
+                                            context.parsed.y.toFixed(2);
+                                        const formattedValue =
+                                            value > 0 ? "+" + value : value;
+                                        return `${label}: ${formattedValue}%`;
+                                    },
+                                    title: function (tooltipItems) {
+                                        const datasetIndex =
+                                            tooltipItems[0].datasetIndex;
+                                        const dataIndex =
+                                            tooltipItems[0].dataIndex;
+
+                                        // Find the corresponding term data
+                                        const president =
+                                            tooltipItems[0].dataset.label;
+                                        const termDataItem = fullTermData.find(
+                                            (term) =>
+                                                term.president === president,
+                                        );
+
+                                        if (termDataItem) {
+                                            // Find the closest day in the term data
+                                            const day =
+                                                tooltipItems[0].parsed.x;
+                                            const closestDayIndex =
+                                                termDataItem.daysFromStart.findIndex(
+                                                    (d) => d >= day,
+                                                );
+
+                                            if (closestDayIndex !== -1) {
+                                                const exactDay =
+                                                    termDataItem.daysFromStart[
+                                                        closestDayIndex
+                                                    ];
+                                                const date =
+                                                    termDataItem.dates[
+                                                        closestDayIndex
+                                                    ];
+                                                return `Day ${exactDay} (${date})`;
+                                            }
+                                        }
+
+                                        return `Day ${tooltipItems[0].parsed.x}`;
+                                    },
+                                },
+                            },
+                            legend: {
+                                position: "top",
+                            },
+                        },
+                        interaction: {
+                            mode: "nearest",
+                            axis: "x",
+                            intersect: false,
+                        },
+                    },
+                });
+            }
+
+            // Call the function to create the chart when the page loads
+            window.addEventListener("DOMContentLoaded", createComparisonChart);
+        </script>
+    </body>
 </html>

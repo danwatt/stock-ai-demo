@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanguard Funds Historical Data Chart</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js and related libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 70vh;
+            width: 100%;
+        }
+        .date-display span {
+            background-color: #e9ecef;
+        }
+        .president-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .president-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .president-term {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-center mb-4">
+            <div class="btn-group" role="group" aria-label="View options">
+                <a href="index.html" class="btn btn-primary">View Market Indices</a>
+                <a href="funds.html" class="btn btn-dark">View Vanguard Funds</a>
+                <a href="presidential_comparison.html" class="btn btn-primary">View Presidential Comparison</a>
+            </div>
+        </div>
+
+        <h1 class="text-center mb-4">Vanguard Funds - Historical Closing Prices</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Date Range Selection</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3 date-display">
+                    <span id="startDateDisplay" class="badge bg-light text-dark p-2">Start: Loading...</span>
+                    <span id="endDateDisplay" class="badge bg-light text-dark p-2">End: Loading...</span>
+                </div>
+
+                <div class="mb-3">
+                    <div class="btn-group" role="group" aria-label="Preset date ranges">
+                        <button class="btn btn-outline-primary" id="oneWeekButton">1 Week</button>
+                        <button class="btn btn-outline-primary" id="oneMonthButton">1 Month</button>
+                        <button class="btn btn-outline-primary" id="ytdButton">YTD</button>
+                        <button class="btn btn-outline-primary" id="oneYearButton">1 Year</button>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="startDateSlider" class="form-label fw-bold">Start Date:</label>
+                    <input type="range" min="0" max="100" value="0" class="form-range" id="startDateSlider">
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span id="minDateLabel">Loading...</span>
+                        <span id="maxDateLabel">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="endDateSlider" class="form-label fw-bold">End Date:</label>
+                    <input type="range" min="0" max="100" value="100" class="form-range" id="endDateSlider">
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span id="minDateLabel2">Loading...</span>
+                        <span id="maxDateLabel2">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button id="resetZoomButton" class="btn btn-secondary me-2">Reset Zoom</button>
+                    <button id="applyRangeButton" class="btn btn-success">Apply Range</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Presidential Terms</h3>
+            </div>
+            <div class="card-body">
+                <div id="presidentsLegend">
+                    <!-- Presidential terms legend will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="fundsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Global variables to store the full datasets
+        let fullVVData = { dates: [], prices: [] };
+        let fullVTSAXData = { dates: [], prices: [] };
+        let fullVFIAXData = { dates: [], prices: [] };
+        let chart = null;
+
+        // Presidential terms data (past 5 presidents)
+        const presidentialTerms = [
+            {
+                name: "George W. Bush",
+                startDate: "2001-01-20",
+                endDate: "2009-01-20",
+                color: "rgba(255, 204, 204, 0.5)"  // Light red (Republican)
+            },
+            {
+                name: "Barack Obama",
+                startDate: "2009-01-20",
+                endDate: "2017-01-20",
+                color: "rgba(204, 229, 255, 0.5)"  // Light blue (Democratic)
+            },
+            {
+                name: "Donald Trump",
+                startDate: "2017-01-20",
+                endDate: "2021-01-20",
+                color: "rgba(255, 204, 204, 0.5)"  // Light red (Republican)
+            },
+            {
+                name: "Joe Biden",
+                startDate: "2021-01-20",
+                endDate: '2025-01-20',  // End date
+                color: "rgba(204, 229, 255, 0.5)"  // Light blue (Democratic)
+            },
+            {
+                name: "Donald Trump (47)",
+                startDate: "2025-01-20",
+                endDate: new Date().toISOString().split('T')[0],  // Current date
+                color: "rgba(255, 204, 204, 0.5)"  // Light red (Republican)
+            }
+        ];
+
+        // Function to fetch and parse CSV data for VV
+        async function fetchVVData() {
+            try {
+                const response = await fetch('vv_closing_prices.csv');
+                const data = await response.text();
+
+                // Parse CSV data
+                const rows = data.trim().split('\n');
+                const headers = rows[0].split(',');
+
+                const dates = [];
+                const prices = [];
+
+                // Start from index 1 to skip the header row
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].split(',');
+                    dates.push(values[0]);
+                    prices.push(parseFloat(values[1]));
+                }
+
+                return { dates, prices };
+            } catch (error) {
+                console.error('Error fetching or parsing VV data:', error);
+                return { dates: [], prices: [] };
+            }
+        }
+
+        // Function to fetch and parse CSV data for VTSAX
+        async function fetchVTSAXData() {
+            try {
+                const response = await fetch('vtsax_closing_prices.csv');
+                const data = await response.text();
+
+                // Parse CSV data
+                const rows = data.trim().split('\n');
+                const headers = rows[0].split(',');
+
+                const dates = [];
+                const prices = [];
+
+                // Start from index 1 to skip the header row
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].split(',');
+                    dates.push(values[0]);
+                    prices.push(parseFloat(values[1]));
+                }
+
+                return { dates, prices };
+            } catch (error) {
+                console.error('Error fetching or parsing VTSAX data:', error);
+                return { dates: [], prices: [] };
+            }
+        }
+
+        // Function to fetch and parse CSV data for VFIAX
+        async function fetchVFIAXData() {
+            try {
+                const response = await fetch('vfiax_closing_prices.csv');
+                const data = await response.text();
+
+                // Parse CSV data
+                const rows = data.trim().split('\n');
+                const headers = rows[0].split(',');
+
+                const dates = [];
+                const prices = [];
+
+                // Start from index 1 to skip the header row
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].split(',');
+                    dates.push(values[0]);
+                    prices.push(parseFloat(values[1]));
+                }
+
+                return { dates, prices };
+            } catch (error) {
+                console.error('Error fetching or parsing VFIAX data:', error);
+                return { dates: [], prices: [] };
+            }
+        }
+
+        // Function to initialize the date range sliders
+        function initializeDateSliders(dates) {
+            if (dates.length === 0) return;
+
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+            const minDateLabel = document.getElementById('minDateLabel');
+            const maxDateLabel = document.getElementById('maxDateLabel');
+            const minDateLabel2 = document.getElementById('minDateLabel2');
+            const maxDateLabel2 = document.getElementById('maxDateLabel2');
+            const startDateDisplay = document.getElementById('startDateDisplay');
+            const endDateDisplay = document.getElementById('endDateDisplay');
+
+            // Set min and max values for sliders
+            startDateSlider.min = 0;
+            startDateSlider.max = dates.length - 1;
+            startDateSlider.value = 0;
+
+            endDateSlider.min = 0;
+            endDateSlider.max = dates.length - 1;
+            endDateSlider.value = dates.length - 1;
+
+            // Set labels
+            minDateLabel.textContent = dates[0];
+            maxDateLabel.textContent = dates[dates.length - 1];
+            minDateLabel2.textContent = dates[0];
+            maxDateLabel2.textContent = dates[dates.length - 1];
+
+            // Set initial display values
+            updateDateDisplay(dates);
+
+            // Add event listeners for sliders
+            startDateSlider.addEventListener('input', function() {
+                // Ensure start date is not after end date
+                if (parseInt(startDateSlider.value) > parseInt(endDateSlider.value)) {
+                    startDateSlider.value = endDateSlider.value;
+                }
+                updateDateDisplay(dates);
+            });
+
+            endDateSlider.addEventListener('input', function() {
+                // Ensure end date is not before start date
+                if (parseInt(endDateSlider.value) < parseInt(startDateSlider.value)) {
+                    endDateSlider.value = startDateSlider.value;
+                }
+                updateDateDisplay(dates);
+            });
+
+            // Add event listener for reset button
+            document.getElementById('resetZoomButton').addEventListener('click', function() {
+                startDateSlider.value = 0;
+                endDateSlider.value = dates.length - 1;
+                updateDateDisplay(dates);
+
+                // Reset the chart title to the original title
+                chart.options.plugins.title.text = 'Vanguard Funds Closing Prices (Jan 2000 - Present)';
+
+                updateChart();
+            });
+
+            // Add event listener for apply button
+            document.getElementById('applyRangeButton').addEventListener('click', updateChart);
+
+            // Add event listeners for preset range buttons
+            document.getElementById('oneWeekButton').addEventListener('click', function() {
+                setPresetRange(dates, 7); // 7 days
+            });
+
+            document.getElementById('oneMonthButton').addEventListener('click', function() {
+                setPresetRange(dates, 30); // 30 days
+            });
+
+            document.getElementById('ytdButton').addEventListener('click', function() {
+                setYearToDateRange(dates);
+            });
+
+            document.getElementById('oneYearButton').addEventListener('click', function() {
+                setPresetRange(dates, 365); // 365 days
+            });
+        }
+
+        // Function to update the date display
+        function updateDateDisplay(dates) {
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+            const startDateDisplay = document.getElementById('startDateDisplay');
+            const endDateDisplay = document.getElementById('endDateDisplay');
+
+            const startIndex = parseInt(startDateSlider.value);
+            const endIndex = parseInt(endDateSlider.value);
+
+            startDateDisplay.textContent = `Start: ${dates[startIndex]}`;
+            endDateDisplay.textContent = `End: ${dates[endIndex]}`;
+        }
+
+        // Function to filter data based on selected date range
+        function filterDataByDateRange() {
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+
+            const startIndex = parseInt(startDateSlider.value);
+            const endIndex = parseInt(endDateSlider.value);
+
+            // Filter VV data
+            const filteredVVData = {
+                dates: fullVVData.dates.slice(startIndex, endIndex + 1),
+                prices: fullVVData.prices.slice(startIndex, endIndex + 1)
+            };
+
+            // Filter VTSAX data
+            const filteredVTSAXData = {
+                dates: fullVTSAXData.dates.slice(startIndex, endIndex + 1),
+                prices: fullVTSAXData.prices.slice(startIndex, endIndex + 1)
+            };
+
+            // Filter VFIAX data
+            const filteredVFIAXData = {
+                dates: fullVFIAXData.dates.slice(startIndex, endIndex + 1),
+                prices: fullVFIAXData.prices.slice(startIndex, endIndex + 1)
+            };
+
+            return { filteredVVData, filteredVTSAXData, filteredVFIAXData };
+        }
+
+        // Function to set a preset date range (e.g., 1 week, 1 month, 1 year)
+        function setPresetRange(dates, days) {
+            if (dates.length === 0) return;
+
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+
+            // Set end date to the most recent date (last index)
+            const endIndex = dates.length - 1;
+            endDateSlider.value = endIndex;
+
+            // Find the index for the start date (days ago from the end date)
+            const endDate = new Date(dates[endIndex]);
+            const targetStartDate = new Date(endDate);
+            targetStartDate.setDate(endDate.getDate() - days);
+
+            // Find the closest date in our dataset
+            let startIndex = endIndex;
+            for (let i = endIndex; i >= 0; i--) {
+                const currentDate = new Date(dates[i]);
+                if (currentDate <= targetStartDate) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            // Update sliders
+            startDateSlider.value = startIndex;
+
+            // Update display and chart
+            updateDateDisplay(dates);
+            updateChart();
+        }
+
+        // Function to set the Year-to-Date range
+        function setYearToDateRange(dates) {
+            if (dates.length === 0) return;
+
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+
+            // Set end date to the most recent date (last index)
+            const endIndex = dates.length - 1;
+            endDateSlider.value = endIndex;
+
+            // Get the current year
+            const currentYear = new Date().getFullYear();
+            const startOfYear = new Date(currentYear, 0, 1); // January 1st of current year
+
+            // Find the closest date in our dataset
+            let startIndex = 0;
+            for (let i = 0; i < dates.length; i++) {
+                const currentDate = new Date(dates[i]);
+                if (currentDate >= startOfYear) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            // Update sliders
+            startDateSlider.value = startIndex;
+
+            // Update display and chart
+            updateDateDisplay(dates);
+            updateChart();
+        }
+
+        // Function to populate the presidential terms legend
+        function populatePresidentsLegend() {
+            const legendContainer = document.getElementById('presidentsLegend');
+            legendContainer.innerHTML = '';
+
+            presidentialTerms.forEach(president => {
+                const item = document.createElement('div');
+                item.className = 'president-item';
+
+                const colorBox = document.createElement('div');
+                colorBox.className = 'president-color';
+                colorBox.style.backgroundColor = president.color;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'president-name';
+                nameSpan.textContent = president.name;
+
+                const termSpan = document.createElement('span');
+                termSpan.className = 'president-term';
+                termSpan.textContent = `(${president.startDate} to ${president.endDate === new Date().toISOString().split('T')[0] ? 'Present' : president.endDate})`;
+
+                item.appendChild(colorBox);
+                item.appendChild(nameSpan);
+                item.appendChild(termSpan);
+
+                legendContainer.appendChild(item);
+            });
+        }
+
+        // Function to create presidential term annotations
+        function createPresidentialAnnotations() {
+            const annotations = {};
+
+            presidentialTerms.forEach((president, index) => {
+                annotations[`president-${index}`] = {
+                    type: 'box',
+                    xMin: president.startDate,
+                    xMax: president.endDate,
+                    backgroundColor: president.color,
+                    borderColor: 'transparent',
+                    drawTime: 'beforeDatasetsDraw'
+                };
+            });
+
+            return annotations;
+        }
+
+        // Function to update the chart with filtered data
+        function updateChart() {
+            const { filteredVVData, filteredVTSAXData, filteredVFIAXData } = filterDataByDateRange();
+            const startDateSlider = document.getElementById('startDateSlider');
+            const endDateSlider = document.getElementById('endDateSlider');
+            const startIndex = parseInt(startDateSlider.value);
+            const endIndex = parseInt(endDateSlider.value);
+
+            // Update chart data
+            chart.data.labels = filteredVVData.dates;
+            chart.data.datasets[0].data = filteredVVData.prices;
+            chart.data.datasets[1].data = filteredVTSAXData.prices;
+            chart.data.datasets[2].data = filteredVFIAXData.prices;
+
+            // Update the chart's options to include the presidential annotations
+            chart.options.plugins.annotation.annotations = createPresidentialAnnotations();
+
+            // Set the x-axis min and max to match the selected date range
+            if (filteredVVData.dates.length > 0) {
+                const startDate = filteredVVData.dates[0];
+                const endDate = filteredVVData.dates[filteredVVData.dates.length - 1];
+
+                chart.options.scales.x.min = startDate;
+                chart.options.scales.x.max = endDate;
+
+                // Update chart title to reflect the selected date range
+                chart.options.plugins.title.text = `Vanguard Funds Closing Prices (${startDate} to ${endDate})`;
+
+                // Adjust the time unit based on the date range
+                const dateRange = endIndex - startIndex;
+                if (dateRange <= 14) { // 2 weeks or less
+                    chart.options.scales.x.time.unit = 'day';
+                    chart.options.scales.x.time.displayFormats.day = 'MMM D, YYYY';
+                } else if (dateRange <= 90) { // 3 months or less
+                    chart.options.scales.x.time.unit = 'week';
+                    chart.options.scales.x.time.displayFormats.week = 'MMM D, YYYY';
+                } else if (dateRange <= 365) { // 1 year or less
+                    chart.options.scales.x.time.unit = 'month';
+                    chart.options.scales.x.time.displayFormats.month = 'MMM YYYY';
+                } else {
+                    chart.options.scales.x.time.unit = 'month';
+                    chart.options.scales.x.time.displayFormats.month = 'MMM YYYY';
+                }
+            }
+
+            // Update chart
+            chart.update();
+        }
+
+        // Function to create the chart
+        async function createChart() {
+            // Fetch the full datasets
+            fullVVData = await fetchVVData();
+            fullVTSAXData = await fetchVTSAXData();
+            fullVFIAXData = await fetchVFIAXData();
+
+            // Populate the presidential terms legend
+            populatePresidentsLegend();
+
+            // Initialize date sliders - use VV data dates as reference
+            initializeDateSliders(fullVVData.dates);
+
+            // Get the canvas element
+            const ctx = document.getElementById('fundsChart').getContext('2d');
+
+            // Create the chart with the full datasets initially
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: fullVVData.dates,
+                    datasets: [
+                        {
+                            label: 'VV (Vanguard Large-Cap ETF)',
+                            data: fullVVData.prices,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'VTSAX (Vanguard Total Stock Market)',
+                            data: fullVTSAXData.prices,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'VFIAX (Vanguard 500 Index)',
+                            data: fullVFIAXData.prices,
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            },
+                            ticks: {
+                                maxTicksLimit: 20,
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                                displayFormats: {
+                                    month: 'MMM YYYY'
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Fund Price ($)'
+                            },
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Vanguard Funds Closing Prices (Jan 2000 - Present)',
+                            font: {
+                                size: 18
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            position: 'top'
+                        },
+                        annotation: {
+                            annotations: createPresidentialAnnotations()
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // Call the function to create the chart when the page loads
+        window.addEventListener('DOMContentLoaded', createChart);
+    </script>
+</body>
+</html>

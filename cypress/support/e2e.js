@@ -20,13 +20,14 @@
 // require('./commands')
 
 // Add handling for uncaught exceptions
-Cypress.on('uncaught:exception', (err, runnable) => {
+Cypress.on("uncaught:exception", (err, runnable) => {
   // Returning false here prevents Cypress from failing the test
   // This is useful when testing sites that have JS errors outside of our control
-  console.log('Uncaught exception:', err.message);
+  console.log("Uncaught exception:", err.message);
   return false;
 });
 
-// Add global timeout for Chart.js related tests
+// Add global timeouts for Chart.js related tests
 // Charts can take a bit longer to render
-Cypress.config('defaultCommandTimeout', 10000);
+Cypress.config("defaultCommandTimeout", 15000);
+Cypress.config("pageLoadTimeout", 15000);

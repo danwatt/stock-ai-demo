@@ -182,10 +182,21 @@ The Cypress tests verify:
 - Interactive elements like sliders and buttons are present
 - Charts are rendered on the page
 
-For the tests to work properly, make sure the local server is running:
+### Test Setup and Troubleshooting
+
+1. Make sure the local server is running before starting the tests:
 ```bash
 python serve.py
 ```
+
+2. The tests include extended timeouts for chart rendering, which may take longer to load:
+   - Default command timeout: 15000ms
+   - Page load timeout: 15000ms
+
+3. If tests are still failing with timeout errors:
+   - Try running the server first and ensure it's fully started
+   - Run tests in interactive mode to debug specific failing tests
+   - You may need to adjust timeouts in `cypress/support/e2e.js` for slower machines
 
 ## License
 

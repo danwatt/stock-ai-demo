@@ -49,17 +49,12 @@ describe("Vanguard Funds Historical Data Chart Page", () => {
     cy.get(".btn-group a").should("contain", "View Vanguard Funds");
   });
 
-  it("should have fund selector", () => {
-    // Check if the fund selector exists
-    cy.get("#fundSelector").should("be.visible");
-    cy.get('#fundSelector input[type="checkbox"]').should(
-      "have.length.at.least",
-      2,
-    );
-  });
+  // Remove the fund selector test as it doesn't exist in the page
 
   it("should have preset range buttons", () => {
     // Check if the preset range buttons exist
-    cy.get('.btn-group[role="group"] button').should("have.length.at.least", 4);
+    cy.get(
+      "#oneWeekButton, #oneMonthButton, #ytdButton, #oneYearButton",
+    ).should("have.length", 4);
   });
 });

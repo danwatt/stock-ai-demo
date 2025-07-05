@@ -50,7 +50,7 @@ describe("S&P 500 Presidential Term Comparison Page", () => {
   it("should have a legend for presidents", () => {
     // Check if the legend exists
     cy.get("#presidentsLegend").should("be.visible");
-    cy.get(".legend-item").should("have.length.at.least", 4); // At least 4 presidents
+    cy.get(".president-item").should("have.length.at.least", 4); // At least 4 presidents
   });
 
   it("should show percentage labels on the y-axis", () => {

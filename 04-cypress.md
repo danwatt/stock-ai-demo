@@ -18,6 +18,20 @@ After reviewing the initial implementation, the user reported:
 >
 > Again, please fix this if possible, and update the appropriate markdown files as well to record our conversation.
 
+## Follow-up Request #2
+
+After fixing the initial timing issues, the user reported additional bugs:
+
+> There are still a few bugs in Cypress tests.
+>
+> presidential_comparions - it should use "president-item", not "legend-item"
+>
+> index - 'startDateSlider', not 'start-date-slider`. This error is repetated on several other elements.
+>
+> funds - 'fundSelector' does not exist, and never has. So that entire test/assertion should not happen.
+>
+> Again, fix these and document our conversation.
+
 ## Implementation Summary
 
 Based on the user's request, I took the following actions:
@@ -50,14 +64,20 @@ Based on the user's request, I took the following actions:
    - Created custom commands to help with chart testing
    - Added error handling for uncaught exceptions that might occur with Chart.js
 
-5. **Test Fixes:**
+5. **Initial Test Fixes:**
    - After initial implementation, fixed tests that were timing out
    - Updated selectors to match the actual page structure
    - Increased timeouts for chart rendering
    - Added more robust page loading checks
    - Fixed heading text assertions to match actual content on the pages
 
-5. **Documentation:**
+6. **Additional Selector Fixes:**
+   - Fixed presidential_comparison.cy.js to use ".president-item" instead of ".legend-item"
+   - Updated index.cy.js to use the correct camelCase IDs (e.g., "#startDateSlider" instead of "#start-date-slider")
+   - Removed the fund selector test in funds.cy.js as this element doesn't exist
+   - Fixed button selectors to use specific IDs instead of generic selectors
+
+7. **Documentation:**
    - Updated the README with a new "Testing with Cypress" section
    - Added instructions for installing dependencies and running tests in both interactive and headless modes
    - Created this documentation file to record the interaction
@@ -87,6 +107,10 @@ Based on the user's request, I took the following actions:
    - Updated element IDs and class names to match the actual implementation
    - Used more specific selectors to avoid ambiguity
    - Fixed heading text assertions to match the exact text in each page
+   - After additional feedback, corrected remaining selector issues:
+     - Fixed camelCase vs. kebab-case in element IDs
+     - Removed tests for non-existent elements
+     - Used more precise selectors for buttons and legend items
 
 ## Future Recommendations
 
@@ -113,3 +137,17 @@ Based on the user's request, I took the following actions:
 5. **Testing in Different Environments:**
    - Configure tests to run against different browsers for compatibility testing
    - Add responsive testing to verify the charts work on different screen sizes
+
+## Lessons Learned
+
+Through this iterative process of creating and fixing Cypress tests, several important lessons emerged:
+
+1. **Verify Element Existence:** Before writing tests, carefully inspect the actual HTML structure to ensure elements exist and selectors are correct.
+
+2. **Naming Conventions Matter:** Pay close attention to naming conventions in HTML and JavaScript, especially camelCase vs. kebab-case in IDs and classes.
+
+3. **Remove Invalid Tests:** If an element doesn't exist, remove the test entirely rather than trying to fix a selector.
+
+4. **Test Step by Step:** Interactive mode in Cypress helps identify specific issues that might not be apparent when running all tests at once.
+
+5. **Document All Interactions:** Keeping a record of feedback and fixes helps track progress and provides valuable context for future maintenance.

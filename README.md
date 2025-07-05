@@ -198,6 +198,11 @@ python serve.py
    - Run tests in interactive mode to debug specific failing tests
    - You may need to adjust timeouts in `cypress/support/e2e.js` for slower machines
 
+4. The tests use precise selectors that match the exact HTML structure:
+   - Element IDs use camelCase (e.g., `startDateSlider`, not `start-date-slider`)
+   - CSS classes are matched exactly as they appear in the HTML
+   - Tests only check for elements that actually exist in the pages
+
 ## License
 
 This project is open source and available for any use.

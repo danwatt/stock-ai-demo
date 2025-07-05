@@ -28,8 +28,8 @@ describe("Market Indices Historical Data Chart Page", () => {
 
   it("should have date range sliders", () => {
     // Check if the date range sliders exist
-    cy.get("#start-date-slider").should("exist");
-    cy.get("#end-date-slider").should("exist");
+    cy.get("#startDateSlider").should("exist");
+    cy.get("#endDateSlider").should("exist");
   });
 
   it("should display the date range", () => {
@@ -57,6 +57,6 @@ describe("Market Indices Historical Data Chart Page", () => {
 
   it("should have preset range buttons", () => {
     // Check if the preset range buttons exist
-    cy.get('.btn-group[role="group"] button').should("have.length.at.least", 4);
+    cy.get("#preset-ranges button").should("have.length.at.least", 4);
   });
 });

@@ -1,0 +1,13 @@
+{
+  "name": "djia-demo-1",
+  "version": "1.0.0",
+  "description": "Market Indices Historical Data Downloader and Visualizer",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress open",
+    "test:headless": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^13.6.0"
+  }
+}

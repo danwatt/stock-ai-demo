@@ -133,6 +133,60 @@ This view normalizes the S&P 500 performance to allow direct comparison between 
 - Legend showing each president's term with start and end dates
 - Responsive design that works on different screen sizes
 
+## Testing with Cypress
+
+This project includes Cypress tests to validate the functionality of all three pages: index.html, funds.html, and presidential_comparison.html.
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm (comes with Node.js)
+
+### Installing Test Dependencies
+
+1. Run the following command in the project directory to install the required dependencies:
+
+```bash
+npm install
+```
+
+2. This will install Cypress and other dependencies needed for testing.
+
+### Running the Tests
+
+You can run the tests in two ways:
+
+#### Interactive Mode (with UI)
+
+```bash
+npm test
+```
+
+This will open the Cypress Test Runner where you can select which tests to run and watch them execute in real-time.
+
+#### Headless Mode (for CI/CD)
+
+```bash
+npm run test:headless
+```
+
+This will run all tests in the terminal without opening a browser UI, which is useful for automated testing environments.
+
+### What the Tests Validate
+
+The Cypress tests verify:
+- Each page loads successfully
+- The correct page title appears
+- Main headings and content are displayed
+- Navigation between pages works
+- Interactive elements like sliders and buttons are present
+- Charts are rendered on the page
+
+For the tests to work properly, make sure the local server is running:
+```bash
+python serve.py
+```
+
 ## License
 
 This project is open source and available for any use.

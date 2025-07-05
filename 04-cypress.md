@@ -32,6 +32,16 @@ After fixing the initial timing issues, the user reported additional bugs:
 >
 > Again, fix these and document our conversation.
 
+## Follow-up Request #3
+
+After fixing the selector issues, the user identified discrepancies between the test selectors and the actual HTML structure:
+
+> So the test exposed a possible issue in the html.
+>
+> index .cy.js/.html - it is looking for "preset-ranges", but no such element exists in the HTML. There is a DIV that fufills that purpose, but it has no ID attribute. Maybe you should add an ID attribute. 
+>
+> There is also no "presidents-legend", but there is "presidentsLegend"
+
 ## Implementation Summary
 
 Based on the user's request, I took the following actions:
@@ -77,6 +87,12 @@ Based on the user's request, I took the following actions:
    - Removed the fund selector test in funds.cy.js as this element doesn't exist
    - Fixed button selectors to use specific IDs instead of generic selectors
 
+7. **HTML Structure Improvements:**
+   - Added missing ID attributes to HTML elements to match the tests
+   - Added `id="preset-ranges"` to the div containing preset buttons
+   - Initially changed `id="presidentsLegend"` to `id="presidents-legend"` but reverted to keep camelCase naming consistency
+   - Ensured Cypress tests use the correct camelCase selector for the presidents legend
+
 7. **Documentation:**
    - Updated the README with a new "Testing with Cypress" section
    - Added instructions for installing dependencies and running tests in both interactive and headless modes
@@ -111,6 +127,10 @@ Based on the user's request, I took the following actions:
      - Fixed camelCase vs. kebab-case in element IDs
      - Removed tests for non-existent elements
      - Used more precise selectors for buttons and legend items
+   - After finding HTML structure discrepancies:
+     - Added missing ID attributes to HTML elements
+     - Ensured HTML IDs matched test expectations
+     - Maintained original camelCase naming convention for existing IDs
 
 ## Future Recommendations
 
@@ -151,3 +171,9 @@ Through this iterative process of creating and fixing Cypress tests, several imp
 4. **Test Step by Step:** Interactive mode in Cypress helps identify specific issues that might not be apparent when running all tests at once.
 
 5. **Document All Interactions:** Keeping a record of feedback and fixes helps track progress and provides valuable context for future maintenance.
+
+6. **Tests as Documentation:** Cypress tests can serve as living documentation of expected page structure, revealing inconsistencies in naming conventions and element organization.
+
+7. **HTML-Test Alignment:** Ensure your HTML structure and test expectations are aligned. When discrepancies are found, consider whether to update the tests or improve the HTML.
+
+8. **ID Consistency:** Maintain consistent naming conventions throughout your project for HTML IDs, CSS classes, and JavaScript references. In this case, we kept the existing camelCase convention (e.g., `presidentsLegend`) rather than switching to kebab-case.

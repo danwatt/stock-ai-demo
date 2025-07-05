@@ -51,7 +51,7 @@ describe("Market Indices Historical Data Chart Page", () => {
 
   it("should have president legend", () => {
     // Check if the president legend exists
-    cy.get("#presidents-legend").should("be.visible");
+    cy.get("#presidentsLegend").should("be.visible");
     cy.get(".president-item").should("have.length.at.least", 4); // At least 4 presidents
   });
 

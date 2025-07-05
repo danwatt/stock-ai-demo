@@ -199,9 +199,12 @@ python serve.py
    - You may need to adjust timeouts in `cypress/support/e2e.js` for slower machines
 
 4. The tests use precise selectors that match the exact HTML structure:
-   - Element IDs use camelCase (e.g., `startDateSlider`, not `start-date-slider`)
+   - Element IDs use camelCase (e.g., `startDateSlider`, not `start-date-slider`) 
    - CSS classes are matched exactly as they appear in the HTML
    - Tests only check for elements that actually exist in the pages
+   - The HTML structure has been updated to include proper ID attributes:
+     - Added `id="preset-ranges"` to the div containing preset buttons
+     - Maintained `id="presidentsLegend"` for consistency with camelCase naming convention
 
 ## License
 

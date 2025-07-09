@@ -50,6 +50,9 @@ def download_ticker_data(ticker, ticker_name, start_date_str, end_date_str):
     # Format the date as string
     closing_data['date'] = closing_data['date'].dt.strftime('%Y-%m-%d')
 
+    # Round closing prices to 4 decimal places
+    closing_data['closing'] = closing_data['closing'].round(4)
+
     # Save to CSV with the required format
     closing_data.to_csv(output_file, header=True, index=False)
 

@@ -20,10 +20,16 @@ This project provides a Python script that downloads historical closing price da
 
 ## Installation
 
+It is recommended to use [pyenv](https://github.com/pyenv/pyenv) to manage your Python versions and ensure compatibility.
+
+
 1. Clone this repository or download the files
 2. Install the required dependencies:
 
 ```bash
+pyenv install 3.11.8
+pyenv local 3.11.8
+
 pip install -r requirements.txt
 ```
 

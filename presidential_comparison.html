@@ -184,6 +184,33 @@
                     </div>
                 </div>
             </div>
+            <!-- Summary Statistics Table -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Summary Statistics</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="summaryTable">
+                            <thead>
+                                <tr>
+                                    <th>President</th>
+                                    <th>Start Value</th>
+                                    <th>End Value</th>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Total Days</th>
+                                    <th>Total % Change</th>
+                                    <th>Average Daily Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Bootstrap JS Bundle with Popper -->
@@ -334,15 +361,15 @@
                         const startValue = prices[startIndex];
                         const termDates = [];
                         const normalizedPrices = [];
+                        const termPrices = [];
                         const daysFromStart = [];
-
                         // Calculate normalized prices (as percentage change from start value)
                         for (let i = startIndex; i <= endIndex; i++) {
                             const normalizedValue =
                                 ((prices[i] - startValue) / startValue) * 100;
                             normalizedPrices.push(normalizedValue);
                             termDates.push(dates[i]);
-
+                            termPrices.push(prices[i]);
                             // Calculate days from start of term
                             const currentDate = new Date(dates[i]);
                             const startDate = new Date(dates[startIndex]);
@@ -352,7 +379,6 @@
                             );
                             daysFromStart.push(dayDiff);
                         }
-
                         termData.push({
                             president: president.name,
                             party: president.party,
@@ -363,6 +389,7 @@
                             dates: termDates,
                             normalizedPrices: normalizedPrices,
                             daysFromStart: daysFromStart,
+                            prices: termPrices, // <-- add actual prices
                         });
                     }
                 });
@@ -733,8 +760,42 @@
                 });
             }
 
+            // Function to compute and populate summary statistics table
+            function populateSummaryTable() {
+                const tableBody = document.querySelector("#summaryTable tbody");
+                tableBody.innerHTML = "";
+                fullTermData.forEach(term => {
+                    if (!term.prices || !term.prices.length) return;
+                    const start = 0;
+                    const end = term.prices.length - 1;
+                    const startValue = term.prices[start].toFixed(2);
+                    const endValue = term.prices[end].toFixed(2);
+                    const min = Math.min(...term.prices).toFixed(2);
+                    const max = Math.max(...term.prices).toFixed(2);
+                    const totalDays = term.prices.length;
+                    const totalChange = (((term.prices[end] - term.prices[start]) / term.prices[start]) * 100).toFixed(2);
+                    const avgDailyChange = (totalDays > 1)
+                        ? ((term.prices[end] - term.prices[start]) / term.prices[start] / (totalDays - 1) * 100).toFixed(4) + "%"
+                        : "-";
+                    const row = `<tr>
+                        <td>${term.president}</td>
+                        <td>${startValue}</td>
+                        <td>${endValue}</td>
+                        <td>${min}</td>
+                        <td>${max}</td>
+                        <td>${totalDays}</td>
+                        <td>${totalChange}%</td>
+                        <td>${avgDailyChange}</td>
+                    </tr>`;
+                    tableBody.insertAdjacentHTML("beforeend", row);
+                });
+            }
+
             // Call the function to create the chart when the page loads
-            window.addEventListener("DOMContentLoaded", createComparisonChart);
+            window.addEventListener("DOMContentLoaded", async () => {
+                await createComparisonChart();
+                populateSummaryTable();
+            });
         </script>
     </body>
 </html>
